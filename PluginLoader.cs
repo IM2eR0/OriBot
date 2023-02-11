@@ -1,5 +1,4 @@
 ﻿using EleCho.GoCqHttpSdk;
-using MiraiGo_C.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,53 +12,55 @@ namespace MiraiGoC
 {
     class PluginLoader
     {
-        static char g = Program.g;
         public static void LoadPlugins(CqWsSession _s)
         {
-            if (!Directory.Exists($".{g}plugins"))
+            if (!Directory.Exists($"plugins"))
             {
-                Util.Print("插件目录不存在，创建中...", Util.PrintType.WARNING);
-                Directory.CreateDirectory($".{g}plugins");
+                Program.Logger.LogWarning("插件目录不存在, 创建中...");
+                Directory.CreateDirectory($"plugins");
             }
-            else
-            {
-                DirectoryInfo dir = new DirectoryInfo($".{g}plugins");
-                var fs = dir.GetFiles();
 
-                foreach ( FileInfo f in fs )
+
+            DirectoryInfo dir = new DirectoryInfo($"plugins");
+            var fs = dir.GetFiles();
+
+            foreach (FileInfo f in fs)
+            {
+                // 如果不是动态链接库, 则跳过这个文件
+                if (!f.Extension.Equals(".dll", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                try
                 {
-                    if(f.Extension == ".dll")
+                    Program.Logger.LogInfo($"加载插件: {f.Name}");
+
+                    // 利用反射来加载 C# DLL
+                    var pluginAsm = Assembly.LoadFile(f.FullName);
+                    Type[] types = pluginAsm.GetTypes();
+
+                    foreach (Type type in types)
                     {
+                        if (!typeof(CqPostPlugin).IsAssignableFrom(type) || !type.Name.Equals("PluginLoadEnter"))
+                            continue;
+
                         try
                         {
-                            Util.Print(f.Name, Util.PrintType.LP);
+                            object _obj = Activator.CreateInstance(type) ?? throw new Exception("无法创建类型实例");
+                            MethodInfo mf = type.GetMethod("Load") ?? throw new Exception("无法获取插件加载方法");
 
-                            // 利用反射来加载 C# DLL
-                            var _a = Assembly.LoadFile(f.FullName);
-                            Type[] types = _a.GetTypes();
-                            
-                            for(int i = 0; i < types.Length; i++)
-                            {
-                                if (types[i].Name == "PluginLoadEnter")
-                                {
-                                    try
-                                    {
-                                        object _obj = Activator.CreateInstance(types[i]);
-                                        MethodInfo mf = types[i].GetMethod("Load");
-                                        // 入口：Load
-                                        mf.Invoke(_obj, new CqWsSession[] { _s });
-                                    }catch(Exception ex)
-                                    {
-                                        Util.Print(ex.Message, Util.PrintType.ERROR);
-                                    }
-                                };
-                            };
+
+                            // 入口：Load
+                            mf.Invoke(_obj, new CqWsSession[] { _s });
                         }
                         catch (Exception ex)
                         {
-                            Util.Print(ex.Message, Util.PrintType.ERROR);
+                            Program.Logger.LogError(ex.Message);
                         }
                     }
+                }
+                catch (Exception ex)
+                {
+                    Program.Logger.LogError(ex.Message);
                 }
             }
         }
