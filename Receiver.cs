@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace MiraiGoC
 {
@@ -25,7 +24,7 @@ namespace MiraiGoC
 
             var _msg = "["+GroupID+"] "+SenderName+"("+SenderID+") > "+Message;
 
-            Util.Print(_msg, Util.PrintType.Group);
+            Program.Logger.LogInfo($"群消息/{GroupID}: {Message}");
         }
     }
 }
