@@ -1,4 +1,5 @@
 ﻿using EleCho.GoCqHttpSdk;
+using EleCho.GoCqHttpSdk.Message;
 using NullLib.CommandLine;
 using System;
 using System.Collections.Generic;
@@ -50,13 +51,13 @@ namespace MiraiGo_C
         }
 
         [Command]
-        public void SendGroupMessage(long groupId, string message)
+        public void SendGroupMessage(long groupId, CqMessage message)
         {
             Session.SendGroupMessageAsync(groupId, message).Wait();
         }
 
         [Command]
-        public void SendPrivateMessage(long friendId, string message)
+        public void SendPrivateMessage(long friendId, CqMessage message)
         {
             Session.SendPrivateMessageAsync(friendId, message);
         }

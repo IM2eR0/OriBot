@@ -22,7 +22,7 @@ namespace MiraiGoC
             string SenderName = context.Sender.Nickname;
             string Message = context.RawMessage;
 
-            var _msg = "["+GroupID+"] "+SenderName+"("+SenderID+") > "+Message;
+            //var _msg = "["+GroupID+"] "+SenderName+"("+SenderID+") > "+Message;
 
             Program.Logger.LogInfo($"群消息/{GroupID}: {Message}");
         }
