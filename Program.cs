@@ -58,7 +58,7 @@ namespace MiraiGoC
             Console.WriteLine(" / / / / ___/ / __  / __ \\/ __/");
             Console.WriteLine("/ /_/ / /  / / /_/ / /_/ / /_  ");
             Console.WriteLine("\\____/_/  /_/_____/\\____/\\__/  \n");
-            Console.WriteLine("Version: 1.0\n");
+            Console.WriteLine("Version: 1.1\n");
 
             try
             {
